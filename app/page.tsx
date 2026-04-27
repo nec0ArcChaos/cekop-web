@@ -3,6 +3,7 @@
 import { useState, useRef, type FormEvent, type ChangeEvent } from "react";
 import { Coffee, CupSoda, Wine, CheckCircle2, X, Smile, Frown, HelpCircle, Angry } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const MOOD_OPTIONS = [
   { id: "Senang", label: "Senang", icon: Smile },
