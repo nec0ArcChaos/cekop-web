@@ -1,14 +1,22 @@
 "use client";
 
 import { useState, useRef, type FormEvent, type ChangeEvent } from "react";
-import { Coffee, CupSoda, Wine, CheckCircle2, X, Smile, Frown, HelpCircle } from "lucide-react";
+import { Coffee, CupSoda, Wine, CheckCircle2, X, Smile, Frown, HelpCircle, Angry } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 const MOOD_OPTIONS = [
   { id: "Senang", label: "Senang", icon: Smile },
   { id: "Sedih", label: "Sedih", icon: Frown },
+  { id: "Marah", label: "Marah", icon: Angry },
   { id: "Bingung", label: "Bingung", icon: HelpCircle },
 ];
+
+const MOOD_QUESTIONS: Record<string, string> = {
+  Senang: "Apakah Kamu Butuh Sharing?",
+  Sedih: "Apakah Kamu Perlu di Dengar?",
+  Marah: "Apakah kamu butuh Ditenangin?",
+  Bingung: "Apakah kamu perlu diskusi tentang perasaanmu?",
+};
 
 const COFFEE_OPTIONS = [
   {
@@ -39,6 +47,7 @@ export default function App() {
   const [showMenuModal, setShowMenuModal] = useState(false);
   const [modalStep, setModalStep] = useState<"mood" | "menu">("mood");
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [selectedMoodAnswer, setSelectedMoodAnswer] = useState<"Ya" | "Tidak" | null>(null);
   const [bingungText, setBingungText] = useState("");
   const [selectedCoffee, setSelectedCoffee] = useState<string | null>(null);
   const [orderComplete, setOrderComplete] = useState(false);
@@ -56,8 +65,14 @@ export default function App() {
   const resetModal = () => {
     setModalStep("mood");
     setSelectedMood(null);
+    setSelectedMoodAnswer(null);
     setBingungText("");
     setSelectedCoffee(null);
+  };
+
+  const handleMoodSelect = (moodId: string) => {
+    setSelectedMood(moodId);
+    setSelectedMoodAnswer(null);
   };
 
   const closeModal = () => {
@@ -334,14 +349,15 @@ export default function App() {
                       <p className="text-sm text-slate-500 mt-1">Ceritakan, biar kami temukan kopi yang paling pas.</p>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-3 mb-4">
+                    {/* 2x2 mood grid */}
+                    <div className="grid grid-cols-2 gap-3 mb-4">
                       {MOOD_OPTIONS.map((mood) => {
                         const Icon = mood.icon;
                         const isSelected = selectedMood === mood.id;
                         return (
                           <button
                             key={mood.id}
-                            onClick={() => setSelectedMood(mood.id)}
+                            onClick={() => handleMoodSelect(mood.id)}
                             className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                               isSelected
                                 ? "border-brand-blue bg-brand-blue/5"
@@ -357,9 +373,43 @@ export default function App() {
                       })}
                     </div>
 
-                    {/* Textbox khusus Bingung */}
+                    {/* Sub-question Ya/Tidak untuk semua mood */}
                     <AnimatePresence>
-                      {selectedMood === "Bingung" && (
+                      {selectedMood && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.22 }}
+                          className="overflow-hidden mb-4"
+                        >
+                          <div className="pt-1 space-y-3">
+                            <p className="text-sm font-semibold text-slate-700 text-center">
+                              {MOOD_QUESTIONS[selectedMood]}
+                            </p>
+                            <div className="grid grid-cols-2 gap-3">
+                              {(["Ya", "Tidak"] as const).map((ans) => (
+                                <button
+                                  key={ans}
+                                  onClick={() => setSelectedMoodAnswer(ans)}
+                                  className={`py-3 rounded-full text-sm font-bold border-2 transition-all cursor-pointer ${
+                                    selectedMoodAnswer === ans
+                                      ? "border-brand-blue bg-brand-blue text-white"
+                                      : "border-slate-200 bg-white text-slate-600 hover:border-brand-blue/40"
+                                  }`}
+                                >
+                                  {ans}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Textarea muncul setelah Ya/Tidak dipilih */}
+                    <AnimatePresence>
+                      {selectedMoodAnswer !== null && (
                         <motion.div
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
@@ -368,7 +418,7 @@ export default function App() {
                           className="overflow-hidden mb-4"
                         >
                           <div className="space-y-1.5 pt-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-4">Ceritakan Apa yang kamu rasakan</label>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-4">Ceritakan Apa Yang Kamu Rasakan</label>
                             <textarea
                               rows={3}
                               value={bingungText}
@@ -383,7 +433,7 @@ export default function App() {
 
                     {/* Tombol Lihat Menu */}
                     <AnimatePresence>
-                      {selectedMood && (selectedMood !== "Bingung" || bingungText.trim()) && (
+                      {selectedMoodAnswer !== null && (
                         <motion.button
                           initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
