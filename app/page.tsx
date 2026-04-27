@@ -277,16 +277,6 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-4">Apa yang kamu rasakan?</label>
-                    <textarea
-                      name="feeling"
-                      rows={3}
-                      placeholder="Ceritakan perasaanmu hari ini..."
-                      className="w-full px-6 py-4 rounded-[28px] bg-slate-50 border-none focus:ring-2 focus:ring-brand-cyan text-sm resize-none outline-none transition-all"
-                    />
-                  </div>
-
                   <button
                     type="submit"
                     className="w-full bg-brand-blue text-white py-4 mt-2 rounded-full font-bold text-sm tracking-widest uppercase hover:bg-blue-600 transition-colors shadow-lg shadow-brand-blue/30 cursor-pointer"
